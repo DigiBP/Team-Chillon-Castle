@@ -51,6 +51,25 @@ final_prescriptions[len(final_prescriptions)] = prescription_row
 
 import pandas as pd
 df = pd.DataFrame.from_dict(final_prescriptions, orient="index")
-df.to_excel("prescriptions_dict.xlsx", 'Sheet1', index=False)
 
-files.download("prescriptions_dict.xlsx")
+#Export to Google Sheets / Part 1 Auth
+!pip install --upgrade --quiet gspread
+from google.colab import auth
+auth.authenticate_user()
+
+import gspread
+from oauth2client.client import GoogleCredentials
+
+gc = gspread.authorize(GoogleCredentials.get_application_default())
+
+#Export to Google Sheets / Part 2 Export
+from gspread_dataframe import get_as_dataframe, set_with_dataframe
+
+patient_data = gc.open_by_url('https://docs.google.com/spreadsheets/d/1tbLYRSAfDMbr8cueQInhWVA6ISAD2c8kc9X7EonvOX8/edit#gid=0')
+ws1 = patient_data.get_worksheet(0)
+ws1.update_cell(2,2,df.iloc[0]['Name'])
+ws1.update_cell(2,3,df.iloc[0]['Zip'])
+ws1.update_cell(2,4,df.iloc[0]['ePharmacy'])
+ws1.update_cell(2,5,df.iloc[0]['Mail'])
+ws1.update_cell(2,6,df.iloc[0]['Drug'])
+ws1.update_cell(2,7,df.iloc[0]['Plan'])
